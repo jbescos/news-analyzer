@@ -50,8 +50,9 @@ public class NewsMeneame implements NewsExtractor {
                 String url = URLEncoder.encode(title.attr("href"), "UTF-8");
                 Element metadata = content.child(1);
                 String author = metadata.child(1).text();
+                String contentStr = content.child(2).text();
                 Long ts = Long.parseLong(metadata.child(3).attr("data-ts")) * 1000;
-                Info info = new Info(author, new Date(ts), titleStr, url);
+                Info info = new Info(author, new Date(ts), titleStr, contentStr, url);
                 infos.add(info);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Cannot parse html\n" + elementNews + "\nContent\n:" + content, e);

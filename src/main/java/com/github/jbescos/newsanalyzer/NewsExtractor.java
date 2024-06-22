@@ -13,11 +13,13 @@ public interface NewsExtractor {
         private final Date date;
         private final String title;
         private final String url;
+        private final String content;
 
-        public Info(String author, Date date, String title, String url) {
+        public Info(String author, Date date, String title, String content, String url) {
             this.author = author;
             this.date = date;
             this.title = title;
+            this.content = content;
             this.url = url;
         }
 
@@ -37,10 +39,10 @@ public interface NewsExtractor {
             return url;
         }
 
-        @Override
-        public String toString() {
-            return "Info [author=" + author + ", date=" + date + ", title=" + title + ", url=" + url + "]";
+        public String getContent() {
+            return content;
         }
+
     }
     
 }

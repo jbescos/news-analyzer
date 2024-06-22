@@ -33,7 +33,7 @@ public class NewsCollectorProcess {
                 List<Info> info = extractor.collect(page);
                 for (Info i : info) {
                     lastProcessed = i.getDate();
-                    writer.writeNext(new String[] {new SimpleDateFormat(FORMAT_SECOND).format(i.getDate()), i.getAuthor(), i.getTitle(), i.getUrl()});
+                    writer.writeNext(new String[] {new SimpleDateFormat(FORMAT_SECOND).format(i.getDate()), i.getAuthor(), i.getTitle(), i.getContent(), i.getUrl()});
                 }
                 page++;
             } while (lastProcessed.getTime() > tillDate.getTime());
