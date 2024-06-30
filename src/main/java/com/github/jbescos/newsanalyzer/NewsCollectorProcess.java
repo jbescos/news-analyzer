@@ -1,5 +1,6 @@
 package com.github.jbescos.newsanalyzer;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -7,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -36,8 +38,9 @@ public class NewsCollectorProcess {
     public void populate(Predicate<Date> predicate) {
         Date lastProcessed = null;
         final AtomicInteger page = new AtomicInteger(fromPage);
-        try (FileOutputStream fos = new FileOutputStream(file); 
-                OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+        try (FileOutputStream fos = new FileOutputStream(file);
+                BufferedOutputStream bos = new BufferedOutputStream(fos);
+                OutputStreamWriter osw = new OutputStreamWriter(bos, "UTF-8");
                 CSVWriter writer = new CSVWriter(osw);
                 ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();){
             do {
@@ -51,6 +54,7 @@ public class NewsCollectorProcess {
                         info.addAll(future.get());
                     } catch (InterruptedException | ExecutionException e) {}
                 }
+                Collections.sort(info, (a1, a2) -> a1.getDate().compareTo(a2.getDate()));
                 for (Info i : info) {
                     lastProcessed = i.getDate();
                     writer.writeNext(new String[] {new SimpleDateFormat(FORMAT_SECOND).format(i.getDate()), i.getAuthor(), i.getTitle(), i.getContent(), i.getUrl()});
