@@ -34,7 +34,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib</classpathPrefix>
-                            <mainClass>com.github.jbescos.httpproxy.Main</mainClass>
+                            <mainClass>com.github.jbescos.newsanalyzer.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -65,6 +65,11 @@
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
+            <version>3.1.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.connectors</groupId>
+            <artifactId>jersey-netty-connector</artifactId>
             <version>3.1.7</version>
         </dependency>
         <dependency>

@@ -21,7 +21,7 @@ public class ForoCoches implements NewsExtractor {
 
     private static final String URL = "https://forocoches.com/foro/showthread.php";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MMM-yyyy HH:mm", Locale.of("es", "ES"));
-    private static final String COOKIE = "XXX";
+    private static final String COOKIE = "XXXXX";
     private final Client client;
 
     public ForoCoches(Client client) {

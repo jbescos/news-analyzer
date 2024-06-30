@@ -6,8 +6,14 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 import com.github.jbescos.newsanalyzer.NewsExtractor.Info;
@@ -16,6 +22,7 @@ import com.opencsv.CSVWriter;
 public class NewsCollectorProcess {
 
     private static final String FORMAT_SECOND = "yyyy-MM-dd HH:mm:ss";
+    private static final int THREADS = 20;
     private final NewsExtractor extractor;
     private final File file;
     private final int fromPage;
@@ -28,17 +35,26 @@ public class NewsCollectorProcess {
 
     public void populate(Predicate<Date> predicate) {
         Date lastProcessed = null;
-        int page = fromPage;
+        final AtomicInteger page = new AtomicInteger(fromPage);
         try (FileOutputStream fos = new FileOutputStream(file); 
                 OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
-                CSVWriter writer = new CSVWriter(osw);){
+                CSVWriter writer = new CSVWriter(osw);
+                ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();){
             do {
-                List<Info> info = extractor.collect(page);
+                List<Future<List<Info>>> futures = new ArrayList<>();
+                for (int i = 0; i < THREADS; i++) {
+                    futures.add(executor.submit(() -> extractor.collect(page.getAndIncrement())));
+                }
+                List<Info> info = new ArrayList<>();
+                for (Future<List<Info>> future : futures) {
+                    try {
+                        info.addAll(future.get());
+                    } catch (InterruptedException | ExecutionException e) {}
+                }
                 for (Info i : info) {
                     lastProcessed = i.getDate();
                     writer.writeNext(new String[] {new SimpleDateFormat(FORMAT_SECOND).format(i.getDate()), i.getAuthor(), i.getTitle(), i.getContent(), i.getUrl()});
                 }
-                page++;
             } while (predicate.test(lastProcessed));
         } catch (IOException e) {
             throw new UncheckedIOException("Cannot persist in " + file, e);
